@@ -6,8 +6,6 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from .models import Pokemon, PokemonEntity
 
-
-
 MOSCOW_CENTER = [55.751244, 37.618423]
 DEFAULT_IMAGE_URL = (
     'https://vignette.wikia.nocookie.net/pokemon/images/6/6e/%21.png/revision'
@@ -31,7 +29,8 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 def show_all_pokemons(request):
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    existing_pokemons = PokemonEntity.objects.filter(disappeared_at__gte=localtime()).filter(appeared_at__lte=localtime())
+    existing_pokemons = PokemonEntity.objects.filter(disappeared_at__gte=localtime()).filter(
+        appeared_at__lte=localtime())
     for pokemon_entity in existing_pokemons:
         add_pokemon(
             folium_map, pokemon_entity.lat,
@@ -71,11 +70,31 @@ def show_pokemon(request, pokemon_id):
             pokemon_entity.lon,
             image_url)
 
-    return render(request, 'pokemon.html', context={
+    context = {
         'map': folium_map._repr_html_(),
         'pokemon': {'img_url': image_url,
                     'title_ru': requested_pokemon.title,
                     'title_en': requested_pokemon.title_en,
                     'title_jp': requested_pokemon.title_jp,
-                    'description': requested_pokemon.description}
-    })
+                    'description': requested_pokemon.description,
+                    }
+    }
+
+    try:
+        context['pokemon']['next_evolution'] = {
+            'pokemon_id': requested_pokemon.next_evolution.get().id,
+            'title_ru': requested_pokemon.next_evolution.get().title,
+            'img_url': image_url
+        }
+    except:
+        pass
+    try:
+        context['pokemon']['previous_evolution'] = {
+            'pokemon_id': requested_pokemon.previous_evolution.id,
+            'title_ru': requested_pokemon.previous_evolution.title,
+            'img_url': request.build_absolute_uri(requested_pokemon.previous_evolution.image.url)
+        }
+    except:
+        pass
+
+    return render(request, 'pokemon.html', context=context)
