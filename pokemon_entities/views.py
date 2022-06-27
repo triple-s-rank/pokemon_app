@@ -35,7 +35,7 @@ def show_all_pokemons(request):
         add_pokemon(
             folium_map, pokemon_entity.lat,
             pokemon_entity.lon,
-            request.build_absolute_uri(pokemon_entity.pokemon.image.url)
+            request.build_absolute_uri(pokemon_entity.pokemons.image.url)
         )
 
     pokemons_on_page = []
@@ -82,8 +82,8 @@ def show_pokemon(request, pokemon_id):
 
     try:
         context['pokemon']['next_evolution'] = {
-            'pokemon_id': requested_pokemon.next_evolution.get().id,
-            'title_ru': requested_pokemon.next_evolution.get().title,
+            'pokemon_id': requested_pokemon.next_evolutions.get().id,
+            'title_ru': requested_pokemon.next_evolutions.get().title,
             'img_url': image_url
         }
     except:
