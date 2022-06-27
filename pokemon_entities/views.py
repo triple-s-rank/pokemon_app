@@ -35,7 +35,7 @@ def show_all_pokemons(request):
         add_pokemon(
             folium_map, pokemon_entity.lat,
             pokemon_entity.lon,
-            request.build_absolute_uri(pokemon_entity.pokemons.image.url)
+            request.build_absolute_uri(pokemon_entity.pokemon.image.url)
         )
 
     pokemons_on_page = []
@@ -59,7 +59,8 @@ def show_pokemon(request, pokemon_id):
     except Pokemon.DoesNotExist:
         raise HttpResponseNotFound('<h1>Такой покемон не найден</h1>')
 
-    pokemon_entities = PokemonEntity.objects.all()
+    pokemon_entities = PokemonEntity.objects.filter(pokemon__id=pokemon_id).filter(
+        disappeared_at__gte=localtime()).filter(appeared_at__lte=localtime())
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     image_url = request.build_absolute_uri(requested_pokemon.image.url)
 
