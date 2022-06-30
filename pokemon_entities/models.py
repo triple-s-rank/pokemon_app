@@ -8,6 +8,7 @@ class Pokemon(models.Model):
     title_jp = models.CharField(max_length=200, blank=True, verbose_name='Имя(японское)')
     description = models.TextField(blank=True, verbose_name='Описание')
     image = models.ImageField(null=True, blank=True, verbose_name='Изображение')
+    element_type = models.ManyToManyField('PokemonElementType', related_name='element_types', verbose_name='Стихия')
     previous_evolution = models.ForeignKey(
         'self',
         null=True,
@@ -38,3 +39,10 @@ class PokemonEntity(models.Model):
 
     def __str__(self):
         return f'{self.pokemon.title}'
+
+
+class PokemonElementType(models.Model):
+    title = models.CharField(max_length=50, default=None, verbose_name='Тип стихии')
+
+    def __str__(self):
+        return self.title
